@@ -1,0 +1,6 @@
+You need MG-SNMP-UPS-MIB mib to be able to launch this script.
+
+You can retrieve it  at this location:
+http://www.observium.org/svn/observer/trunk/mibs/MG-SNMP-UPS-MIB
+
+Then update MIBDIRS env variable to point to the directory where you have stored this MIB file
