@@ -30,17 +30,6 @@ if(!$hostname || $show_help) { usage(); exit(); }
 
 my @information = `snmpwalk -c $community -v $version $hostname MG-SNMP-UPS-MIB::upsmgBattery`;
 
-# MG-SNMP-UPS-MIB::upsmgBatteryRemainingTime.0 = INTEGER: 6000
-# MG-SNMP-UPS-MIB::upsmgBatteryLevel.0 = INTEGER: 100
-# MG-SNMP-UPS-MIB::upsmgBatteryVoltage.0 = INTEGER: 6020
-# MG-SNMP-UPS-MIB::upsmgBatteryCurrent.0 = INTEGER: 0
-# MG-SNMP-UPS-MIB::upsmgBatteryTemperature.0 = INTEGER: 20
-# MG-SNMP-UPS-MIB::upsmgBatteryFaultBattery.0 = INTEGER: no(2)
-# MG-SNMP-UPS-MIB::upsmgBatteryReplacement.0 = INTEGER: no(2)
-# MG-SNMP-UPS-MIB::upsmgBatteryLowBattery.0 = INTEGER: no(2)
-# MG-SNMP-UPS-MIB::upsmgBatteryChargerFault.0 = INTEGER: no(2)
-# MG-SNMP-UPS-MIB::upsmgBatteryLowCondition.0 = INTEGER: no(2)
-
 my @message = ();
 my @perfdata = ();
 foreach(@information) {
@@ -62,6 +51,6 @@ if(scalar(@perfdata) == 0 || scalar(@message) == 0) {
 }
 
 print "Galaxy battery status is ".$message{$state}." (".
-      join(", ", @message).")|".
-      join(" ", @perfdata)."\n";
+      join(", ", sort(@message)).")|".
+      join(" ", sort(@perfdata))."\n";
 exit($state);
