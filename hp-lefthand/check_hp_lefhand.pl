@@ -153,6 +153,24 @@ if($element_id == -1) {
   exit(3);
 }
 
+sub construct_perfdata {
+  my($stat_pointer) = @_;
+  # Get io stats
+  my %stats = %{$stat_pointer};
+
+  foreach my $elt(sort(keys(%stats))) {
+    $response = snmp_get_table($stats{$elt});
+    %resp = %{$response};
+    foreach my $key(keys(%resp)) {
+      print "$elt - $key = ".$resp{$key}."\n" if($verbose);
+      if($key =~ /(\d+)$/) {
+        next if($1 != $element_id); # Skipping test for cluster not to be tested
+        push(@perfdata, "$elt=".$resp{$key}."c");
+      }
+    }
+  }
+}
+
 # Test cluster status
 sub test_cluster {
   # Get global used space
@@ -195,17 +213,7 @@ sub test_cluster {
     "cache-hits",     $oid_cluster_stat_cache_hits,
   );
 
-  foreach my $elt(sort(keys(%stats))) {
-    $response = snmp_get_table($stats{$elt});
-    %resp = %{$response};
-    foreach my $key(keys(%resp)) {
-      print "Cluster $elt - $key = ".$resp{$key}."\n" if($verbose);
-      if($key =~ /(\d+)$/) {
-        next if($1 != $element_id); # Skipping test for cluster not to be tested
-        push(@perfdata, "$elt=".$resp{$key}."c");
-      }
-    }
-  }
+  construct_perfdata(\%stats);
 
   my $percent_used = sprintf("%.2f", ($used_space / $total_space) * 100);
   print "Percent used for $element_name: $percent_used%\n" if($verbose);
@@ -274,6 +282,18 @@ sub test_volume {
       push(@perfdata, $volume_name{$1}."=".$used_space{$1}."kB;$warning_value;$critical_value;0;$total_space");
     }
   }
+  # Get io stats
+  my %stats = (
+    "IO-read-count",  $oid_volume_stats_IOsRead,
+    "IO-write-count", $oid_volume_stats_IOsWrite,
+    "Bytes-read",     $oid_volume_stats_BytesRead,
+    "Bytes-write",    $oid_volume_stats_BytesWrite,
+    "latency-read",   $oid_volume_stats_IoLatencyRead,
+    "latency-write",  $oid_volume_stats_IoLatencyWrite,
+    "cache-hits",     $oid_volume_stats_CacheHits,
+  );
+
+  construct_perfdata(\%stats);
 }
 
 # Test module status
