@@ -43,6 +43,11 @@ foreach(@information) {
   }
 }
 
+if($temperature == -1 && $humidity == -1) {
+  print "No sensor detected ...\n";
+  exit(3);
+}
+
 my @status_message = ();
 my @perfdata = ();
 if($temperature > -1) {
